@@ -1,0 +1,61 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-kip_tarozi}
+      POSTGRES_USER: ${POSTGRES_USER:-kip_tarozi}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-parol}
+    ports:
+      - "5434:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-kip_tarozi} -d ${POSTGRES_DB:-kip_tarozi}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: ${DATABASE_URL:-postgresql+psycopg2://kip_tarozi:parol@db:5432/kip_tarozi}
+      SECRET_KEY: ${SECRET_KEY:-docker-dev-secret-key-change-me}
+      ALGORITHM: HS256
+      STORAGE_PATH: /app/storage
+      ENV: docker
+      AGENT_API_KEY: ${AGENT_API_KEY:-docker-agent-key}
+      STANSIYA_ID: ${STANSIYA_ID:-1}
+      BACKEND_URL: http://backend:8000
+    volumes:
+      - kip_storage:/app/storage
+    ports:
+      - "8002:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/salomat').read()"]
+      interval: 15s
+      timeout: 5s
+      retries: 10
+      start_period: 20s
+    command: ["./docker-entrypoint.sh"]
+
+  frontend:
+    build:
+      context: ./frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "8081:80"
+    environment:
+      BACKEND_URL: http://backend:8000
+
+volumes:
+  pgdata:
+  kip_storage:

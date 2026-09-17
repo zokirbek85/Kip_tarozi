@@ -35,6 +35,49 @@ uvicorn app.main:app --reload --port 8000
 Backend ishga tushgach: `http://localhost:8000/docs` — Swagger orqali barcha
 endpointlarni sinab ko'rish mumkin.
 
+## Docker bilan ishga tushirish
+
+Proyektni tezda ishga tushirish uchun root papkadagi Compose faylidan
+foydalaning:
+
+```bash
+cp backend/.env.example backend/.env
+# agar kerak bo'lsa .env ichidagi SECRET_KEY / AGENT_API_KEY ni o'zgartiring
+
+docker compose up --build
+```
+
+Bu ishga tushganda:
+
+- Backend: `http://localhost:8000/docs`
+- Frontend: `http://localhost:8080`
+- PostgreSQL: `localhost:5432`
+
+Docker compose avtomatik ravishda:
+
+- PostgreSQL'ni kutadi
+- Alembic migratsiyalarini o‘tkazadi
+- Uvicornni ishga tushiradi
+- frontend uchun SPA nginx configini ishlatadi
+
+Agar faqat yangi ma'lumotlar bazasi yoki seed kerak bo'lsa:
+
+```bash
+docker compose run --rm backend python -m scripts.seed
+```
+
+### Docker container'larni to'xtatish
+
+```bash
+docker compose down
+```
+
+Agar volume'larni ham tozalamoqchi bo'lsangiz:
+
+```bash
+docker compose down -v
+```
+
 ### Testlar
 
 ```powershell

@@ -10,6 +10,9 @@ class Settings(BaseSettings):
     # Xavfsizlik
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
+    # Flutter web ilova manzili (masalan "https://ptz.hazorasp-textil.uz") —
+    # vergul bilan bir nechtasi mumkin. Default "*" — faqat dev/Docker uchun.
+    CORS_ORIGINS: str = "*"
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 5256000  # ~10 yil — sessiya muddati cheklanmagan
 
     # Login blok qoidasi

@@ -6,7 +6,10 @@ import 'api_exception.dart';
 class ApiClient {
   /// Backend manzili. Dev uchun default — VPS/domen aniqlangach shu yerdan
   /// (yoki runtime sozlamadan) o'zgartiriladi.
-  static String bazaUrl = 'http://localhost:8000/api/v1';
+  static String bazaUrl = const String.fromEnvironment(
+    'API_BASE_URL',
+    defaultValue: 'http://localhost:8000/api/v1',
+  );
 
   /// Shu Flutter nusxasi qaysi jismoniy stansiyada ishlayotganini bildiradi
   /// (backenddagi `stansiyalar.id`). Har bir operator kompyuteri o'z build/
